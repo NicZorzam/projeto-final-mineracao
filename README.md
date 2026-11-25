@@ -8,7 +8,7 @@ Repositório: https://github.com/NicZorzam/projeto-final-mineracao
 ## Dados
 
 - **Original:** [Steam Reviews, Games and Tags](https://www.kaggle.com/datasets/sergiodelcarpio/steam-reviews), de Sergio Del Carpio. É a versão 1 no Kaggle, um snapshot de 30/10/2026 (UTC), coletado da Steam Web API pelo pipeline [steam-recsys-e2e](https://github.com/sadelcarpio/steam-recsys-e2e). Tem 121.312.346 reviews, 184.885 jogos e 429 tags, em um `archive.zip` de 23,3 GB. Pelos termos do dataset, os textos pertencem aos seus autores, o uso é para pesquisa e educação, e a base não deve ser usada para identificar ou contatar avaliadores.
-- **Base final:** 29.573.250 reviews de 1.527 jogos AAA, em 5,8 GB de Parquet. Está no Google Drive: **[LINK]**. O dicionário de dados está em [`base_final/DICIONARIO_DE_DADOS.md`](base_final/DICIONARIO_DE_DADOS.md).
+- **Base final:** 29.573.250 reviews de 1.527 jogos AAA, em 5,8 GB de Parquet. Está no Google Drive: [https://drive.google.com/drive/folders/1eko1pXDkzBBa40CgX2oKhJapxMtHER8U](https://drive.google.com/drive/folders/1eko1pXDkzBBa40CgX2oKhJapxMtHER8U?usp=sharing). O dicionário de dados está em [`base_final/DICIONARIO_DE_DADOS.md`](base_final/DICIONARIO_DE_DADOS.md).
 - **Critério de AAA (C4):** o jogo é publicado por uma das 17 publicadoras da lista do [VideoGamesCritic](https://videogamescritic.com/findings/did-aaa-games-get-worse) ou por Koei Tecmo, Paradox ou Larian, que foram acrescentadas pelo grupo. Jogos com a tag Indie não são excluídos.
 
 Os arquivos grandes (`archive.zip` e todos os `.parquet`) ficam fora do Git; veja o `.gitignore`.
