@@ -1,0 +1,78 @@
+{
+ "inicio": "2026-11-25 08:20:19",
+ "arquivos": [
+  {
+   "arquivo": "reviews-000.parquet",
+   "reviews": 10000000,
+   "segundos": 32
+  },
+  {
+   "arquivo": "reviews-001.parquet",
+   "reviews": 10000000,
+   "segundos": 28
+  },
+  {
+   "arquivo": "reviews-002.parquet",
+   "reviews": 10000000,
+   "segundos": 28
+  },
+  {
+   "arquivo": "reviews-003.parquet",
+   "reviews": 10000000,
+   "segundos": 33
+  },
+  {
+   "arquivo": "reviews-004.parquet",
+   "reviews": 10000000,
+   "segundos": 31
+  },
+  {
+   "arquivo": "reviews-005.parquet",
+   "reviews": 10000000,
+   "segundos": 30
+  },
+  {
+   "arquivo": "reviews-006.parquet",
+   "reviews": 10000000,
+   "segundos": 30
+  },
+  {
+   "arquivo": "reviews-007.parquet",
+   "reviews": 10000000,
+   "segundos": 34
+  },
+  {
+   "arquivo": "reviews-008.parquet",
+   "reviews": 10000000,
+   "segundos": 30
+  },
+  {
+   "arquivo": "reviews-009.parquet",
+   "reviews": 10000000,
+   "segundos": 30
+  },
+  {
+   "arquivo": "reviews-010.parquet",
+   "reviews": 10000000,
+   "segundos": 30
+  },
+  {
+   "arquivo": "reviews-011.parquet",
+   "reviews": 10000000,
+   "segundos": 30
+  },
+  {
+   "arquivo": "reviews-012.parquet",
+   "reviews": 1312346,
+   "segundos": 4
+  }
+ ],
+ "total_reviews": 121312346,
+ "linhas_csv": 944532,
+ "fim": "2026-11-25 08:26:31",
+ "versoes": {
+  "python": "3.12.10",
+  "pandas": "3.1.1",
+  "pyarrow": "26.0.1"
+ }
+}

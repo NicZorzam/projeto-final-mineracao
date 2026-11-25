@@ -1,0 +1,320 @@
+\documentclass[12pt]{article}
+
+\usepackage{sbc-template}
+\usepackage{graphicx,url}
+\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs,tabularx,array,xcolor}
+\usepackage[hidelinks]{hyperref}
+\sloppy
+
+% ---------------------------------------------------------------------------
+% Números da base final (preenchidos a partir de base_final/log_05.json e descricao_base.json)
+\newcommand{\pend}[1]{\textcolor{red}{[#1]}}
+\newcommand{\NUSU}{15.133.511}
+\newcommand{\NUSUtres}{2.486.475}
+\newcommand{\PUSUtres}{49,0\%}
+\newcommand{\DTMIN}{15/10/2010}
+\newcommand{\DTMAX}{30/10/2026}
+\newcommand{\TAMGB}{5,8~GB}
+\newcommand{\NVAZIO}{106.169}
+\newcommand{\NFUNNY}{198}
+\newcommand{\NPTNULO}{94.995}
+\newcommand{\NDUP}{nenhuma}
+\newcommand{\DESCTXT}{Os textos são curtos: metade tem até 44 caracteres e um quarto, até 12 (amostra de 20 mil por lote). Entre os usuários, 67,5\% escreveram uma única \textit{review} AAA, e o mais ativo escreveu 1.155.}
+\newcommand{\NGONULO}{635.493 (2,1\%)}
+\newcommand{\LINKGIT}{\url{https://github.com/NicZorzam/projeto-final-mineracao}}
+\newcommand{\LINKDRIVE}{\pend{LINK Google Drive}}
+% ---------------------------------------------------------------------------
+
+\title{O que os jogadores dizem sobre jogos AAA:\\ mineração de 29,6 milhões de \textit{reviews} da Steam}
+
+\author{Nicolly Zorzam Moura\inst{1}, Pedro Jorge Câmara\inst{1}}
+
+\address{Instituto de Computação -- Universidade Federal do Rio de Janeiro (UFRJ)\\
+  Rio de Janeiro -- RJ -- Brasil
+  \email{nicollyzorzammoura@gmail.com, pedrojoc@ic.ufrj.br}
+}
+
+\begin{document}
+\maketitle
+
+\begin{resumo}
+\textit{Sprint} 3 -- Mineração de Dados 2026.2 (Prof. Silas Lima Filho). Este documento
+contém a seção de Materiais e Métodos do artigo, incluindo a subseção de Criação da Base de Dados.
+As demais seções (Introdução, Trabalhos Correlatos, Resultados etc.) são desenvolvidas nas
+\textit{sprints} anteriores e seguintes.
+\end{resumo}
+
+\setcounter{section}{2}
+\section{Materiais e Métodos}\label{sec:metodos}
+
+\subsection{Propósito e questões de pesquisa}
+
+O propósito deste trabalho é analisar \emph{o que os jogadores dizem} sobre jogos AAA nas
+avaliações (\textit{reviews}) da Steam e \emph{quem são} os usuários que avaliam esses jogos.
+Os trabalhos correlatos analisam \textit{reviews} da Steam com recortes por tema, comunidade ou
+tipo de jogo \cite{bazzaz2026,byers2025,petrosino2022,gibrim2026}, mas nenhum isola os jogos
+AAA, que concentram grande parte do volume de avaliações da plataforma. Também é raro usar o
+usuário como unidade de análise; entre os trabalhos lidos, só \cite{gibrim2026} compara grupos de
+usuários. Definimos três questões de pesquisa (QP):
+
+\begin{itemize}
+\item \textbf{QP1 (caracterizar):} como a recepção dos jogos AAA (taxa de recomendação, horas
+jogadas até a avaliação, idioma, ano e publicadora) difere da recepção dos demais jogos da Steam?
+\item \textbf{QP2 (o que dizem):} quais temas aparecem nas \textit{reviews} de jogos AAA, e
+quais distinguem as avaliações negativas das positivas?
+\item \textbf{QP3 (quem avalia):} que perfis de avaliadores de jogos AAA surgem ao agrupar os
+usuários pelo seu histórico de avaliações, e como esses perfis se relacionam com a recomendação?
+\end{itemize}
+
+\subsection{Tipo de pesquisa}
+
+Quanto à abordagem, a pesquisa é \textbf{quali-quantitativa}: QP1 e QP3 são respondidas com
+estatística descritiva, testes de hipótese e agrupamento; QP2 combina modelagem de tópicos
+(quantitativa) com a interpretação dos tópicos pelos autores (qualitativa). Quanto à natureza,
+é \textbf{aplicada}, pois gera conhecimento sobre um problema concreto (a recepção de jogos AAA).
+Quanto aos objetivos, é \textbf{exploratória e descritiva} \cite{gil2002}. Quanto ao
+procedimento, é um \textbf{levantamento} sobre dados secundários: as \textit{reviews} já
+existiam e foram analisadas sem intervenção dos pesquisadores.
+
+\subsection{Ambiente}
+
+A pesquisa ocorre na Steam, a loja digital de jogos para computador da Valve. Cada
+\textit{review} traz uma recomendação binária (recomenda ou não recomenda), um texto livre e
+metadados do autor, como as horas jogadas até a avaliação, o número de jogos na biblioteca e se o
+jogo foi comprado na Steam ou recebido de graça \cite{steamapi}. A plataforma foi escolhida
+porque (i) as avaliações são públicas e associadas a um identificador pseudônimo do usuário, o que
+permite estudar o histórico de cada avaliador; (ii) a recomendação binária funciona como rótulo
+de sentimento declarado pelo próprio autor; e (iii) é a fonte usada por todos os trabalhos
+correlatos \cite{bazzaz2026,byers2025,petrosino2022,gibrim2026,jorge2023,ferreira2026,lei2025},
+o que permite comparar resultados.
+
+\subsection{Sujeitos}
+
+Os sujeitos são os usuários da Steam que escreveram \textit{reviews} de jogos AAA. Não há
+participação direta de pessoas: cada usuário aparece apenas por um identificador numérico
+pseudônimo (\texttt{user\_id}), sem nome, perfil ou localização. Esse identificador é um \textit{hash} com chave (HMAC-SHA256, truncado em 63~bits) do SteamID64 do autor: é estável, o que permite agrupar as avaliações de cada usuário, mas não pode ser revertido sem a chave, que não é publicada \cite{dataset}. Como os textos são públicos e uma busca pelo texto pode levar ao perfil do autor, não reproduziremos trechos literais que permitam identificar avaliadores, seguindo os termos do \textit{dataset}. A base final reúne \NUSU{} usuários
+distintos. Eles são classificados pelo número de \textit{reviews} AAA que escreveram (1, 2, 3--4,
+5--9, 10--49 e 50 ou mais) e, na QP3, pelos perfis obtidos no agrupamento. Usuários com
+três ou mais avaliações AAA são o foco da QP3 (\NUSUtres{} usuários, que escrevem
+\PUSUtres{} das \textit{reviews} AAA).
+
+\subsection{Criação da Base de Dados}\label{sec:base}
+
+\subsubsection{Extração de dados}
+
+O conjunto original é o \textit{Steam Reviews, Games and Tags}, de Sergio Del Carpio, publicado no Kaggle \cite{dataset}. Os dados foram coletados da Steam Web API e das páginas da loja por um \textit{pipeline} de código aberto de sistema de recomendação \cite{pipeline}. Usamos a versão~1, um instantâneo de 30/10/2026 (UTC); o autor publica novas versões mensalmente, com mais linhas, por isso a versão importa para a reprodução. Ela foi baixada como um arquivo compactado
+(\texttt{archive.zip}, 23,3~GB compactado e 23,7~GB descompactado) com três tabelas em formato
+Parquet: \texttt{games} (184.885 jogos; preço, gêneros, categorias, desenvolvedoras e
+publicadoras), \texttt{game\_tags} (as 429 \textit{tags} da comunidade, com pesos, coletadas entre
+29/09 e 29/10/2026) e \texttt{reviews} (121.312.346 avaliações de 2010 a 2026, em 13 arquivos de
+cerca de 2~GB). As tabelas se ligam pelo \texttt{game\_id}.
+Segundo a documentação, cada \textit{review} aparece uma única vez (a primeira versão coletada é mantida), as datas estão em UTC e os tempos de jogo, em minutos. Quanto aos direitos, os textos pertencem aos seus autores, e os nomes, descrições e \textit{tags} dos jogos, à Valve e às publicadoras; os dados são disponibilizados para pesquisa e educação.
+
+A extração lê os arquivos Parquet dentro do \texttt{.zip}, sem descompactar a base inteira. Na
+caracterização da \textit{sprint}~1, um leitor ``esparso'' leu o rodapé de cada Parquet e
+descomprimiu apenas os blocos das colunas necessárias, o que permitiu varrer as 121,3~milhões de
+avaliações numa máquina virtual com cerca de 3~GB de RAM (cerca de 50~s por arquivo). Na
+\textit{sprint}~3, o mesmo leitor contou as \textit{reviews} por jogo e idioma (6~min no total), o
+que permitiu comparar os critérios de seleção de jogos AAA descritos a seguir.
+
+\textbf{Definição de AAA.} Não há definição oficial de jogo AAA, nem \textit{tag} correspondente
+na Steam. Comparamos quatro critérios (Tabela~\ref{tab:criterios}): (C1) jogo publicado por uma de
+17 grandes publicadoras; (C2) preço acima de um corte; (C3) a combinação dos dois; e (C4) o C1
+ampliado com três publicadoras. A lista de publicadoras do C1 vem do VideoGamesCritic
+\cite{vgc2026}: EA, Activision, Blizzard, Ubisoft, 2K, Rockstar, Sony, Xbox Game Studios, Bethesda,
+Nintendo, Square Enix, Capcom, Bandai Namco, Sega, Warner Bros. Games, Konami e CD Projekt Red.
+O site exclui ainda os jogos com a \textit{tag} Indie (C1b) e, na sua análise, usa só lançamentos a partir de 2014 com ao menos 500 avaliações; esses dois filtros não foram adotados aqui, para manter todas as avaliações dos jogos selecionados. Como o campo \texttt{game\_publishers}
+tem grafias variadas (por exemplo, oito grafias da Capcom), mapeamos explicitamente 46 nomes para
+16 dos 17 grupos (a Nintendo não tem jogos na Steam), mais quatro nomes para as três publicadoras
+acrescentadas no C4, conferindo cada um; nomes parecidos de outras
+empresas (por exemplo, ``Sony Pictures Virtual Reality'' e ``Projekt Wolfenstahl'') foram
+descartados.
+
+\begin{table}[ht]
+\centering
+\caption{Jogos e \textit{reviews} selecionados por critério de AAA (base completa: 120.980.379 \textit{reviews} de jogos cadastrados; 85,7\% positivas).}\label{tab:criterios}
+\footnotesize
+\begin{tabular}{lrrrrr}
+\toprule
+Critério & Jogos & \textit{Reviews} & \% base & \% positivas & PT-BR \\
+\midrule
+C1 -- 17 publicadoras & 1.320 & 27.319.688 & 22,6 & 84,5 & 1.522.001 \\
+C1b -- 17 publicadoras, sem \textit{tag} Indie & 1.232 & 25.822.952 & 21,3 & 84,2 & 1.429.143 \\
+C2a -- preço $\geq$ 39,99 & 1.872 & 16.483.479 & 13,6 & 83,9 & 675.854 \\
+C2c -- preço $\geq$ 59,99 & 693 & 5.275.871 & 4,4 & 85,0 & 212.690 \\
+C3 -- C1 e preço $\geq$ 39,99 & 285 & 8.984.819 & 7,4 & 84,9 & 434.764 \\
+\textbf{C4 -- C1 + Koei Tecmo, Paradox e Larian} & \textbf{1.527} & \textbf{29.573.250} & \textbf{24,4} & \textbf{84,4} & \textbf{1.581.726} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Adotamos o \textbf{C4}. O preço não serve como critério porque \texttt{game\_price} é o preço no
+momento da coleta, e não o de lançamento: Grand Theft Auto IV aparece a 5,99, e Rainbow Six
+Siege e Apex Legends, hoje gratuitos, aparecem a zero. Além disso, cortes por preço selecionam
+jogos que não costumam ser chamados de AAA, como Lies of P. A moeda de \texttt{game\_price} não
+consta da documentação do \textit{dataset}; os valores (por exemplo, 59,99) são compatíveis com
+dólares americanos, mas isso não foi verificado.
+
+Partimos do C1 e fizemos duas mudanças em relação à regra do VideoGamesCritic. Primeiro, não
+excluímos os jogos com a \textit{tag} Indie: o recorte é pela publicadora, e a \textit{tag} é
+votada pela comunidade, de modo que marca como Indie jogos publicados pelas próprias empresas da
+lista, como Ori and the Will of the Wisps (Xbox Game Studios) e Risk of Rain~2 (2K). São 104 jogos
+e 1,7~milhão de avaliações no C4. Segundo, acrescentamos Koei Tecmo (115 jogos, 313~mil
+avaliações), Paradox (85 jogos, incluindo o selo Paradox Arc; 1,5~milhão) e Larian (8 jogos,
+433~mil), porque essas três publicam jogos que, na avaliação do grupo, podem ser considerados de grande orçamento, como Nioh~2 (Koei Tecmo), Crusader Kings~III (Paradox) e Baldur's Gate~3 (Larian). Um jogo é publicado ao mesmo tempo
+por Bandai Namco e Paradox.
+
+O C4 tem limitações, que discutimos na Seção de Avaliação e Discussão: a lista ampliada combina uma
+fonte externa com uma escolha do grupo; a Nintendo não tem jogos na Steam e a Blizzard tem apenas
+três; e outras publicadoras de grande volume, como Valve e Krafton, ficam de fora.
+
+\subsubsection{Tratamentos realizados}
+
+\begin{enumerate}
+\item \textbf{Filtro AAA (C4).} Mantidas apenas as \textit{reviews} dos 1.527 jogos do C4.
+As 331.967 avaliações cujo \texttt{game\_id} não está cadastrado na tabela \texttt{games} ficam de
+fora, porque não é possível saber a publicadora do jogo.
+\item \textbf{Estouro de inteiro em \texttt{votes\_funny}.} Na base completa, 772 avaliações têm
+\texttt{votes\_funny} = 4.294.967.295 ($2^{32}-1$), valor típico de um estouro de inteiro sem
+sinal de 32~bits e não de votos reais. Na base final, \NFUNNY{} casos foram substituídos por nulo
+e sinalizados (\texttt{votes\_funny\_overflow}), para não distorcer médias e correlações.
+\item \textbf{Valores ausentes.} \NPTNULO{} avaliações AAA não têm
+\texttt{playtime\_at\_review}. Mantivemos o valor nulo em vez de imputar, porque o tempo de jogo
+é uma variável central da QP1 e um valor imputado criaria um padrão artificial. Criamos
+\texttt{playtime\_at\_review\_h}, em horas, para facilitar a leitura. Pelo mesmo motivo, os \NGONULO{} valores ausentes de \texttt{num\_games\_owned} foram mantidos nulos; na QP3, os usuários sem esse atributo serão agrupados sem ele ou excluídos, e informaremos quantos.
+\item \textbf{Textos vazios.} \NVAZIO{} avaliações têm texto vazio ou só com espaços. Elas
+continuam valendo nas análises de recomendação (QP1 e QP3), mas são sinalizadas
+(\texttt{texto\_vazio}) e excluídas da análise de texto (QP2). Também registramos o comprimento
+do texto (\texttt{review\_len}).
+\item \textbf{Duplicatas.} Verificamos se algum \texttt{review\_id} aparece mais de uma vez;
+não há duplicatas.
+\item \textbf{Datas de lançamento.} \texttt{game\_release\_date} é texto (por exemplo,
+``Mar 27, 2018'') e inclui valores implausíveis, como 1969 e 2104, e marcadores como ``Coming
+soon''. Convertemos para data, e anos anteriores a 1970 ou posteriores a 2030, assim como
+marcadores, viram nulos.
+\item \textbf{Contas atípicas.} Um único usuário tem 28.214 \textit{reviews} na base completa,
+possivelmente um curador ou robô. Esses usuários não são removidos da base; na QP3, os acima do
+percentil 99,9 de \textit{reviews} AAA são analisados à parte, para não dominarem o agrupamento.
+\end{enumerate}
+
+\subsubsection{Base final}
+
+A base final tem \textbf{29.573.250 \textit{reviews}} de \textbf{1.527 jogos AAA} (1.481 com ao
+menos uma avaliação), escritas por \NUSU{} usuários entre \DTMIN{} e \DTMAX{}, em 31 idiomas:
+inglês 46,9\%, chinês simplificado 15,4\%, russo 7,7\%, português do Brasil 5,3\% (1.581.726) e
+espanhol 5,2\%. A taxa de recomendação é de 84,4\%, contra 86,1\% nas 91.407.129 avaliações dos
+demais jogos cadastrados. Por publicadora, ela varia de 63,4\% (Blizzard), 76,1\% (Konami) e
+76,8\% (Koei Tecmo) a 92,2\% (CD Projekt Red) e 94,6\% (Larian). O número de avaliações por jogo é
+muito concentrado: mediana de 3.606; o jogo com mais avaliações é Rainbow Six Siege (580.091).
+\DESCTXT
+
+A base é distribuída em Parquet (compressão zstd, \TAMGB{} no total) com duas tabelas:
+\texttt{reviews\_aaa\_000} a \texttt{reviews\_aaa\_012} (uma parte por arquivo original) e
+\texttt{jogos\_aaa}. A Tabela~\ref{tab:dic} resume os campos; o dicionário completo está no
+repositório. A base está disponível em \LINKDRIVE{}.
+
+\begin{table}[!ht]
+\centering
+\caption{Principais campos da base final.}\label{tab:dic}
+\scriptsize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.47\textwidth}X}
+\toprule
+Campo & Descrição \\
+\midrule
+\multicolumn{2}{l}{\textit{reviews\_aaa} (uma linha por avaliação)} \\
+\texttt{review\_id, user\_id, game\_id} & identificadores da avaliação, do autor (pseudônimo) e do jogo \\
+\texttt{is\_positive} & recomendação (verdadeiro = recomenda) \\
+\texttt{review, review\_len, texto\_vazio} & texto livre, comprimento em caracteres e sinalizador de texto vazio \\
+\texttt{language} & idioma declarado (31 valores; ex.: \textit{english}, \textit{brazilian}) \\
+\texttt{reviewed\_at, updated\_at} & data da avaliação e da última edição \\
+\texttt{playtime\_at\_review(\_h), playtime\_forever} & minutos (e horas) jogados até a avaliação; total jogado \\
+\texttt{num\_games\_owned, num\_reviews} & jogos na biblioteca e \textit{reviews} escritas pelo autor (na Steam) \\
+\texttt{votes\_up, votes\_funny, weighted\_vote\_score} & votos de útil e engraçado e pontuação de utilidade da Steam \\
+\texttt{steam\_purchase, received\_for\_free} & comprado na Steam; recebido de graça \\
+\texttt{written\_during\_early\_access, primarily\_steam\_deck} & escrito em acesso antecipado; jogado no Steam Deck \\
+\midrule
+\multicolumn{2}{l}{\textit{jogos\_aaa} (uma linha por jogo)} \\
+\texttt{game\_id, game\_name, grupo\_publicadora} & jogo e grupo (uma das 17 publicadoras) \\
+\texttt{release\_date, game\_price, game\_is\_free} & lançamento (tratado), preço na coleta, gratuito \\
+\texttt{game\_genres, game\_categories, tag\_names, tag\_weights} & gêneros, categorias e \textit{tags} da comunidade com pesos \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Variáveis}
+
+\textbf{QP1.} A variável dependente é a recomendação (\texttt{is\_positive}). As variáveis
+independentes são: ser AAA ou não, publicadora, horas jogadas até a avaliação (em faixas: menos
+de 1~h, 1--5, 5--20, 20--50, 50--100, 100--500 e mais de 500~h), idioma, ano da avaliação,
+compra na Steam, jogo recebido de graça, acesso antecipado e Steam Deck.
+\textbf{QP2.} O texto da avaliação é o objeto de análise, comparado entre recomendações positivas
+e negativas e entre inglês e português.
+\textbf{QP3.} Não há variável dependente no agrupamento. Os atributos de cada usuário são: número
+de \textit{reviews} AAA, taxa de recomendação, mediana de horas até a avaliação, número de
+publicadoras distintas avaliadas, fração de jogos recebidos de graça, \texttt{num\_games\_owned} e
+\texttt{num\_reviews}. Depois do agrupamento, o perfil vira variável independente na análise da
+recomendação.
+
+\subsection{Procedimentos experimentais}
+
+\textbf{QP1 -- caracterização.} Calculamos a taxa de recomendação por faixa de cada variável,
+para os jogos AAA e para os demais (obtidos pela diferença entre a base completa, já agregada na
+\textit{sprint}~1, e a base AAA). As diferenças de proporção são testadas com $\chi^2$ e medidas
+pelo V de Cramér \cite{cramer1946}; as diferenças de horas jogadas, com o teste de Mann-Whitney
+\cite{mann1947} e o delta de Cliff \cite{cliff1993}. Com dezenas de milhões de observações,
+quase toda diferença é estatisticamente significativa, por isso a interpretação se apoia no
+tamanho de efeito.
+
+\textbf{QP2 -- temas.} Trabalhamos com textos em inglês (o maior grupo e o idioma da maior
+parte dos trabalhos correlatos) e em português do Brasil (diálogo com os trabalhos nacionais
+\cite{gibrim2026,jorge2023}). Excluímos textos vazios e com menos de 20 caracteres, que em geral não têm conteúdo
+temático (por exemplo, ``good'' ou ``10/10''); pela amostra do script~06, isso deve retirar
+cerca de um terço das avaliações. Depois, sorteamos uma amostra estratificada por jogo e polaridade, com até 200 avaliações por
+jogo, polaridade e idioma (semente 42), para que os jogos com mais avaliações não dominem os
+tópicos. Os tópicos são obtidos com o BERTopic \cite{grootendorst2022}: \textit{embeddings} de
+sentenças multilíngues \cite{reimers2019,reimers2020}, redução de dimensão com UMAP
+\cite{mcinnes2018} e agrupamento com HDBSCAN \cite{campello2013}. Os termos que mais distinguem
+avaliações negativas de positivas são medidos com a razão de chances logarítmica com
+\textit{prior} informativo \cite{monroe2008}.
+
+\textbf{QP3 -- perfis.} Agregamos as avaliações por \texttt{user\_id} e selecionamos os usuários
+com ao menos três \textit{reviews} AAA. Os atributos com cauda longa passam por $\log(1+x)$, e
+todos são padronizados. O agrupamento usa o $k$-means \cite{lloyd1982}, com $k$ de 2 a 10, e os
+perfis resultantes são cruzados com a recomendação. Regras de associação (Apriori
+\cite{agrawal1994}) entre perfil, publicadora, faixa de horas e recomendação negativa
+complementam a leitura dos grupos.
+
+\subsection{Procedimentos de avaliação}
+
+\textbf{QP1:} tamanho de efeito (V de Cramér e delta de Cliff), além da comparação com as taxas
+de recomendação relatadas na literatura (por exemplo, 86,3\% nos jogos com geração procedural em
+\cite{bazzaz2026}).
+\textbf{QP2:} coerência dos tópicos ($C_V$) \cite{roder2015} e diversidade de tópicos
+\cite{dieng2020}. Além disso, os dois autores leem 20 avaliações por tópico, nomeiam os tópicos de
+forma independente e medem a concordância com o $\kappa$ de Cohen \cite{cohen1960}.
+\textbf{QP3:} silhueta \cite{rousseeuw1987} e índice de Davies-Bouldin \cite{davies1979} para
+escolher $k$; estabilidade pelo índice de Rand ajustado \cite{hubert1985} entre execuções com
+subamostras de 80\%; e interpretabilidade dos perfis. As regras de associação são filtradas por
+suporte, confiança e \textit{lift} $>1$.
+
+\subsection{Material}
+
+O processamento foi feito em Python 3.12.10, com pandas 3.1.1 \cite{mckinney2010}, PyArrow
+26.0.1 e NumPy 2.5.5, num computador com Windows 10 de 64~bits (versão 10.0.19045), processador AMD Ryzen~5 2400G (3,6~GHz), 16~GB de RAM e SSD de 1~TB. A varredura da \textit{sprint}~1 rodou numa máquina virtual
+Linux com cerca de 3~GB de RAM. As próximas etapas usarão scikit-learn \cite{pedregosa2011},
+BERTopic, sentence-transformers, SciPy e mlxtend, com versões fixadas no arquivo
+\texttt{requirements.txt} do repositório. O texto é escrito no Overleaf, com o modelo da SBC.
+
+\textbf{Reprodutibilidade.} O repositório \LINKGIT{} contém os scripts, que devem ser executados
+em ordem: \texttt{03\_reviews\_por\_jogo.py} (contagem por jogo e idioma),
+\texttt{04\_criterios\_aaa.py} (Tabela~\ref{tab:criterios}), \texttt{05\_base\_final.py} (base
+final e registro dos tratamentos, 6,9~min) e \texttt{06\_descrever\_base.py} (estatísticas desta seção),
+além do mapeamento das publicadoras e do dicionário de dados.
+
+\bibliographystyle{sbc}
+\bibliography{referencias}
+
+\end{document}

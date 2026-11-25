@@ -1,0 +1,152 @@
+{
+ "inicio": "2026-11-25 17:27:55",
+ "jogos_aaa": 1527,
+ "arquivos": [
+  {
+   "arquivo": "reviews-000.parquet",
+   "lidas": 10000000,
+   "aaa": 2416614,
+   "funny_ovf": 14,
+   "pt_nulo": 6569,
+   "texto_vazio": 8657,
+   "segundos": 33,
+   "mb_saida": 473
+  },
+  {
+   "arquivo": "reviews-001.parquet",
+   "lidas": 10000000,
+   "aaa": 2476676,
+   "funny_ovf": 16,
+   "pt_nulo": 10049,
+   "texto_vazio": 9037,
+   "segundos": 33,
+   "mb_saida": 481
+  },
+  {
+   "arquivo": "reviews-002.parquet",
+   "lidas": 10000000,
+   "aaa": 2400903,
+   "funny_ovf": 18,
+   "pt_nulo": 7967,
+   "texto_vazio": 8416,
+   "segundos": 31,
+   "mb_saida": 472
+  },
+  {
+   "arquivo": "reviews-003.parquet",
+   "lidas": 10000000,
+   "aaa": 2457028,
+   "funny_ovf": 16,
+   "pt_nulo": 7726,
+   "texto_vazio": 8766,
+   "segundos": 31,
+   "mb_saida": 480
+  },
+  {
+   "arquivo": "reviews-004.parquet",
+   "lidas": 10000000,
+   "aaa": 2423885,
+   "funny_ovf": 22,
+   "pt_nulo": 7905,
+   "texto_vazio": 8702,
+   "segundos": 31,
+   "mb_saida": 472
+  },
+  {
+   "arquivo": "reviews-005.parquet",
+   "lidas": 10000000,
+   "aaa": 2432890,
+   "funny_ovf": 16,
+   "pt_nulo": 7528,
+   "texto_vazio": 8727,
+   "segundos": 31,
+   "mb_saida": 474
+  },
+  {
+   "arquivo": "reviews-006.parquet",
+   "lidas": 10000000,
+   "aaa": 2436149,
+   "funny_ovf": 12,
+   "pt_nulo": 7101,
+   "texto_vazio": 8895,
+   "segundos": 32,
+   "mb_saida": 474
+  },
+  {
+   "arquivo": "reviews-007.parquet",
+   "lidas": 10000000,
+   "aaa": 2437088,
+   "funny_ovf": 16,
+   "pt_nulo": 8813,
+   "texto_vazio": 8720,
+   "segundos": 31,
+   "mb_saida": 475
+  },
+  {
+   "arquivo": "reviews-008.parquet",
+   "lidas": 10000000,
+   "aaa": 2461554,
+   "funny_ovf": 15,
+   "pt_nulo": 6785,
+   "texto_vazio": 8804,
+   "segundos": 32,
+   "mb_saida": 481
+  },
+  {
+   "arquivo": "reviews-009.parquet",
+   "lidas": 10000000,
+   "aaa": 2468705,
+   "funny_ovf": 19,
+   "pt_nulo": 7281,
+   "texto_vazio": 8986,
+   "segundos": 31,
+   "mb_saida": 474
+  },
+  {
+   "arquivo": "reviews-010.parquet",
+   "lidas": 10000000,
+   "aaa": 2397786,
+   "funny_ovf": 13,
+   "pt_nulo": 7188,
+   "texto_vazio": 8532,
+   "segundos": 31,
+   "mb_saida": 472
+  },
+  {
+   "arquivo": "reviews-011.parquet",
+   "lidas": 10000000,
+   "aaa": 2400535,
+   "funny_ovf": 19,
+   "pt_nulo": 8272,
+   "texto_vazio": 8618,
+   "segundos": 31,
+   "mb_saida": 470
+  },
+  {
+   "arquivo": "reviews-012.parquet",
+   "lidas": 1312346,
+   "aaa": 363437,
+   "funny_ovf": 2,
+   "pt_nulo": 1811,
+   "texto_vazio": 1309,
+   "segundos": 4,
+   "mb_saida": 70
+  }
+ ],
+ "totais": {
+  "lidas": 121312346,
+  "aaa": 29573250,
+  "funny_ovf": 198,
+  "pt_nulo": 94995,
+  "texto_vazio": 106169,
+  "review_id_duplicados": 0
+ },
+ "fim": "2026-11-25 17:34:48",
+ "minutos": 6.9,
+ "versoes": {
+  "python": "3.12.10",
+  "pandas": "3.1.1",
+  "pyarrow": "26.0.1",
+  "numpy": "2.5.5"
+ }
+}

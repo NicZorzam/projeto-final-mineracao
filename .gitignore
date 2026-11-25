@@ -1,0 +1,15 @@
+# Dados grandes: ficam fora do Git (base original no Kaggle, base final no Google Drive)
+archive.zip
+*.parquet
+_cache_usuarios/
+_tmp*/
+_tmp_review.parquet
+# LaTeX
+artigo/*.aux
+artigo/*.log
+artigo/*.out
+artigo/*.bbl
+artigo/*.blg
+artigo/*.fdb_latexmk
+artigo/*.fls
+__pycache__/
