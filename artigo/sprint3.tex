@@ -63,8 +63,9 @@ usuários. Definimos três questões de pesquisa (QP):
 \begin{itemize}
 \item \textbf{QP1 (caracterizar):} como a recepção dos jogos AAA (taxa de recomendação, horas
 jogadas até a avaliação, idioma, ano e publicadora) difere da recepção dos demais jogos da Steam?
-\item \textbf{QP2 (o que dizem):} quais temas aparecem nas \textit{reviews} de jogos AAA, e
-quais distinguem as avaliações negativas das positivas?
+\item \textbf{QP2 (o que dizem):} quais temas aparecem nas \textit{reviews} de jogos AAA,
+quais distinguem as avaliações negativas das positivas, e em que medida o sentimento do texto
+concorda com a recomendação declarada?
 \item \textbf{QP3 (quem avalia):} que perfis de avaliadores de jogos AAA surgem ao agrupar os
 usuários pelo seu histórico de avaliações, e como esses perfis se relacionam com a recomendação?
 \end{itemize}
@@ -72,8 +73,9 @@ usuários pelo seu histórico de avaliações, e como esses perfis se relacionam
 \subsection{Tipo de pesquisa}
 
 Quanto à abordagem, a pesquisa é \textbf{quali-quantitativa}: QP1 e QP3 são respondidas com
-estatística descritiva, testes de hipótese e agrupamento; QP2 combina modelagem de tópicos
-(quantitativa) com a interpretação dos tópicos pelos autores (qualitativa). Quanto à natureza,
+estatística descritiva, testes de hipótese e agrupamento; QP2 combina modelagem de tópicos e
+classificação de sentimento (quantitativas) com a interpretação dos tópicos e a leitura de
+avaliações pelos autores (qualitativa). Quanto à natureza,
 é \textbf{aplicada}, pois gera conhecimento sobre um problema concreto (a recepção de jogos AAA).
 Quanto aos objetivos, é \textbf{exploratória e descritiva} \cite{gil2002}. Quanto ao
 procedimento, é um \textbf{levantamento} sobre dados secundários: as \textit{reviews} já
@@ -251,7 +253,8 @@ independentes são: ser AAA ou não, publicadora, horas jogadas até a avaliaç�
 de 1~h, 1--5, 5--20, 20--50, 50--100, 100--500 e mais de 500~h), idioma, ano da avaliação,
 compra na Steam, jogo recebido de graça, acesso antecipado e Steam Deck.
 \textbf{QP2.} O texto da avaliação é o objeto de análise, comparado entre recomendações positivas
-e negativas e entre inglês e português.
+e negativas e entre inglês e português. Na comparação de sentimento, as variáveis são o sentimento
+estimado do texto (positivo ou negativo) e a recomendação declarada (\texttt{is\_positive}).
 \textbf{QP3.} Não há variável dependente no agrupamento. Os atributos de cada usuário são: número
 de \textit{reviews} AAA, taxa de recomendação, mediana de horas até a avaliação, número de
 publicadoras distintas avaliadas, fração de jogos recebidos de graça, \texttt{num\_games\_owned} e
@@ -278,7 +281,12 @@ tópicos. Os tópicos são obtidos com o BERTopic \cite{grootendorst2022}: \text
 sentenças multilíngues \cite{reimers2019,reimers2020}, redução de dimensão com UMAP
 \cite{mcinnes2018} e agrupamento com HDBSCAN \cite{campello2013}. Os termos que mais distinguem
 avaliações negativas de positivas são medidos com a razão de chances logarítmica com
-\textit{prior} informativo \cite{monroe2008}.
+\textit{prior} informativo \cite{monroe2008}. Por fim, classificamos o sentimento de cada texto da
+amostra com o DistilBERT \cite{sanh2019} e o comparamos com a recomendação declarada, como em
+\cite{bazzaz2026}. O interesse está nas discordâncias, por exemplo, avaliações com polegar para
+cima e texto negativo. Para o inglês, usamos o DistilBERT ajustado para sentimento no SST-2
+\cite{socher2013}; o modelo para o português, entre as versões multilíngues do DistilBERT
+ajustadas para sentimento, será definido na próxima etapa.
 
 \textbf{QP3 -- perfis.} Agregamos as avaliações por \texttt{user\_id} e selecionamos os usuários
 com ao menos três \textit{reviews} AAA. Os atributos com cauda longa passam por $\log(1+x)$, e
@@ -294,7 +302,10 @@ de recomendação relatadas na literatura (por exemplo, 86,3\% nos jogos com ger
 \cite{bazzaz2026}).
 \textbf{QP2:} coerência dos tópicos ($C_V$) \cite{roder2015} e diversidade de tópicos
 \cite{dieng2020}. Além disso, os dois autores leem 20 avaliações por tópico, nomeiam os tópicos de
-forma independente e medem a concordância com o $\kappa$ de Cohen \cite{cohen1960}.
+forma independente e medem a concordância com o $\kappa$ de Cohen \cite{cohen1960}. Na
+comparação de sentimento, usamos a matriz de confusão e o $\kappa$ entre o sentimento estimado
+e a recomendação declarada; os autores leem 100 avaliações discordantes para separar erros do
+modelo de discordâncias reais entre o texto e o polegar.
 \textbf{QP3:} silhueta \cite{rousseeuw1987} e índice de Davies-Bouldin \cite{davies1979} para
 escolher $k$; estabilidade pelo índice de Rand ajustado \cite{hubert1985} entre execuções com
 subamostras de 80\%; e interpretabilidade dos perfis. As regras de associação são filtradas por
@@ -305,7 +316,7 @@ suporte, confiança e \textit{lift} $>1$.
 O processamento foi feito em Python 3.12.10, com pandas 3.1.1 \cite{mckinney2010}, PyArrow
 26.0.1 e NumPy 2.5.5, num computador com Windows 10 de 64~bits (versão 10.0.19045), processador AMD Ryzen~5 2400G (3,6~GHz), 16~GB de RAM e SSD de 1~TB. A varredura da \textit{sprint}~1 rodou numa máquina virtual
 Linux com cerca de 3~GB de RAM. As próximas etapas usarão scikit-learn \cite{pedregosa2011},
-BERTopic, sentence-transformers, SciPy e mlxtend, com versões fixadas no arquivo
+BERTopic, sentence-transformers, Transformers \cite{wolf2020} (DistilBERT), SciPy e mlxtend, com versões fixadas no arquivo
 \texttt{requirements.txt} do repositório. O texto é escrito no Overleaf, com o modelo da SBC.
 
 \textbf{Reprodutibilidade.} O repositório \LINKGIT{} contém os scripts, que devem ser executados
